@@ -1,0 +1,43 @@
+version: '3'
+
+services:
+  frontend:
+    image: frontend:latest
+    build: 
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend/.cert:/app/frontend/.cert:ro
+    depends_on: 
+      - backend
+    networks:
+      - mynetwork
+    
+  backend: 
+    image: backend:latest
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    # ports:
+    #   - "5000:5000"
+    networks:
+      - mynetwork
+
+  nginx:
+    image: nginx:latest
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./frontend/.cert:/app/frontend/.cert:ro
+    depends_on:
+      - frontend
+      - backend
+    networks:
+      - mynetwork
+      
+networks:
+  mynetwork:
